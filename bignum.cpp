@@ -130,6 +130,98 @@ public:
 		}
 	}
 
+	bool modcomp(bignum b)			//Boolean function returns if(|a|>|b|)
+	{
+		if(value.length()>b.value.length())
+			return true;
+		else if(value.length()<b.value.length())
+			return false;
+		else
+		{
+			for(int i=0;i<value.length();i++)
+			{
+				if(value[i] > b.value[i])
+					return true;
+				else if(value[i] < b.value[i])
+					return false;
+			}
+		}
+	}
+
+	bignum operator+(bignum b)
+	{
+		bignum sum;
+		int carry=0;int i,j,x,k=0;
+		if(isPositive == b.isPositive)		//Both have same signs, so value is added.
+		{
+			for(i=value.length()-1,j=b.value.length()-1;(i>=0&&j>=0);i--,j--)
+			{
+				sum.value[k++]=carry+(value[i]-'0')+(b.value[j]-'0')%10+'0';
+				carry = carry+(value[i]-'0')+(b.value[j]-'0')/10;
+			}
+			while(i--)
+			{
+				sum.value[k++]=carry+(value[i]-'0')%10+'0';
+				carry = carry+(value[i]-'0')/10;
+			}
+			while(j--)
+			{
+				sum.value[k++]=carry+(b.value[j]-'0')%10+'0';
+				carry = carry+(b.value[j]-'0')/10;
+			}
+			sum.isPositive = isPositive;
+		}
+		else		//Both have opposite signs, so values are substracted.
+		{
+			string copy;
+			if(modcomp(b))			//if(|a|>|b|), value is |a|-|b|,sign is a's sign.
+			{
+				copy = value;
+				for(i=copy.length()-1,j=b.value.length()-1;(i>=0&&j>=0);i--,j--)
+				{
+					if(copy[i]>b.value[j])
+						sum.value[k++]=copy[i]-b.value[j]+'0';
+					else
+					{
+						sum.value[k++]=copy[i]-b.value[j]+10+'0';
+						for(x=i-1;copy[x]!='0';x--)
+							copy[x]='9';
+						copy[x]--;
+					}
+				}
+				while(i--)
+					sum.value[k++]=copy[i]+'0';
+				sum.isPositive = isPositive;
+			}
+			else				//if(|b|>|a|), value is |b|-|a|, sign is b's sign
+			{
+				copy = b.value;
+				for(i=copy.length()-1,j=value.length()-1;(i>=0&&j==0);i--,j--)
+				{
+					if(copy[i]>value[j])
+						sum.value[k++]=copy[i]-value[j]+'0';
+					else
+					{
+						sum.value[k++]=copy[i]-value[j]+10+'0';
+						for(x=i-1;copy[x]!='0';x--)
+							copy[x]='9';
+						copy[x]--;
+					}
+				}
+				while(i--)
+					sum.value[k++]=copy[i]+'0';
+				sum.isPositive = b.isPositive;
+			}
+		}char temp;		//Reversing the sum's value string.
+		for(i=0;i<sum.value.length()/2;i++)
+		{
+			temp = sum.value[i];
+			sum.value[i]=sum.value[sum.value.length()-i-1];
+			sum.value[sum.value.length()-i-1]=temp;
+		}
+		return sum;
+	}
+
 	void print()
 	{
 		if(value=="")
@@ -150,4 +242,5 @@ int main()
 	bool checks[] = {a==b,b==c,c==-234};
 	//comapring bignums and numbers
 	cout<<checks[0]<<checks[1]<<checks[2]<<endl;
+	//TODO- Addition, Substraction, Multiplication, Division
 }
